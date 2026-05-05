@@ -7,7 +7,6 @@
 sid1 = 11885807;
 sid2 = 12366706;
 sid3 = 12364061;
-
 % Now, run this script and ensure the DataA2.mat file has been generated.
 
 % **STOP!** Do not modify below this line. Your assignment solution should
