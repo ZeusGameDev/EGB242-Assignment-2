@@ -29,26 +29,30 @@ plot(f,channelfft)
 xlabel("Frequency (Hz)")
 ylabel("Magnitude")
 legend("transmission channel")
-title("Frequencies present in transmission channel prior to transmission")
+title("Frequencies present in transmission channel over 20 seconds")
 ax = gca;
 ax.XAxis.Exponent = 0;
 ax.YAxis.Exponent = 0;
 ax.XAxis.TickDirection = "both";
 saveimagewrapper(gcf)
 
-ts = 1/fs;
-
+ts = 1/fs; % sampling period/time??
+% signal of area 1 , and infinite peak. ts is smallest unit of time,
+% Area = ts*(1/ts) = 1
 dirac = [1/ts,zeros(1,size(t,2)-1)];
 impulseResponse = channel(sid, dirac, fs);
-H = fft(impulseResponse) * ts;
+H = fft(impulseResponse);
 f= linspace(-fs/2,fs/2,fs*length);
 figure(3)
 plot(t,impulseResponse)
 
 figure(4)
-plot(f,abs(fftshift(H)), f, channelfft*ts)
-
-audioCleanSignal = (ifft(((fft(audioMultiplexNoisy) *ts) ./ H)) * fs);
+plot(f,abs(fftshift(H)), f, channelfft)
+% y(t) = x(t) conv h(t)
+% y(f) = x(f) mult h(f)
+audioRemoveLSINoise = (ifft(((fft(audioMultiplexNoisy)) ./ H)))*fs;
+figure(67)
+plot(t,audioRemoveLSINoise);
 
 function [audioSignal, demodulatedSignal] = demodulate(signal, carrierFrequency, bandwidth,fs,t)
     carrier = cos(2*pi*carrierFrequency.*t);
@@ -61,7 +65,7 @@ end
 
 % find exact carrier frequency
 % visual peaks at approx 8830, 24020, 40190, 56250, 77280
-bandwidth = 10000;
+bandwidth = 8000;
 halfBandwidth = bandwidth/2;
 fcApprox1 = 8830;
 fcApprox2 = 24020;
@@ -85,25 +89,26 @@ searchMask = f > fcApprox5-halfBandwidth & f < fcApprox5+halfBandwidth;
 [~,idx] = max(channelfft.* searchMask);
 carrier5 = f(idx);
 %demodulation
-[signal1, ~] = demodulate(audioCleanSignal, carrier1,bandwidth,fs,t);
-signal1 = signal1 -0.5*cos((1/20).*pi.*t);
+[signal1, ~] = demodulate(audioRemoveLSINoise, carrier1,bandwidth,fs,t);
+% signal1 = signal1 -0.5*cos((1/20).*pi.*t);
+
 audiowrite("signal1.wav",signal1,fs)
-[signal2, ~] = demodulate(audioCleanSignal, carrier2,bandwidth,fs,t);
-signal2 = signal2 -0.5*cos((1/20).*pi.*t);
+[signal2, ~] = demodulate(audioRemoveLSINoise, carrier2,bandwidth,fs,t);
+% signal2 = signal2 -0.5*cos((1/20).*pi.*t);
 audiowrite("signal2.wav",signal2,fs)
-[signal3, ~] = demodulate(audioCleanSignal, carrier3,bandwidth,fs,t);
-signal3 = signal3 -0.5*cos((1/20).*pi.*t);
+[signal3, ~] = demodulate(audioRemoveLSINoise, carrier3,bandwidth,fs,t);
+% signal3 = signal3 -0.5*cos((1/20).*pi.*t);
 audiowrite("signal3.wav",signal3,fs)
-[signal4, ~] = demodulate(audioCleanSignal, carrier4,bandwidth,fs,t);
-signal4 = signal4 -0.5*cos((1/20).*pi.*t);
+[signal4, ~] = demodulate(audioRemoveLSINoise, carrier4,bandwidth,fs,t);
+% signal4 = signal4 -0.5*cos((1/20).*pi.*t);
 audiowrite("signal4.wav",signal4,fs)
-[signal5, ~] = demodulate(audioCleanSignal, carrier5,bandwidth,fs,t);
-signal5 = signal5 -0.5*cos((1/20).*pi.*t);
+[signal5, ~] = demodulate(audioRemoveLSINoise, carrier5,bandwidth,fs,t);
+% signal5 = signal5 -0.5*cos((1/20).*pi.*t);
 audiowrite("signal5.wav",signal5,fs)
 
 
 figure(5)
-plot(t, signal1);
+plot(t, signal1,t,0.5*cos((1/18).*pi.*t) );
 xlabel("Seconds (s)")
 ylabel("Amplitude")
 title("Waveform of demodulated audio signal 1 over 20 seconds")
@@ -111,7 +116,7 @@ legend("audio signal 1")
 saveimagewrapper(gcf)
 
 f= linspace(-fs/2,fs/2,fs*length);
-s1fft = abs(fftshift(fft(signal1)));
+s1fft = abs(fftshift(fft(signal1)))*ts;
 
 figure(6)
 plot(f,s1fft)
@@ -125,3 +130,36 @@ ax.YAxis.Exponent = 0;
 ax.XAxis.TickDirection = "both";
 saveimagewrapper(gcf)
 
+figure(5)
+subplot(3,2,1)
+plot(t, signal1);
+title("signal 1")
+% the noise looks vaguely (cos)sinusoidal, with a period of approx. 18s and
+% an amp of approx 0.5
+
+subplot(3,2,2)
+plot(t,signal2);
+title("signal 2")
+
+subplot(3,2,3)
+plot(t, signal3);
+title("signal 3")
+
+subplot(3,2,4)
+plot(t, signal4);
+title("signal 4")
+
+subplot(3,2,5)
+plot(t, signal5 );
+title("signal 5")
+
+subplot(3,2,6)
+plot(f, fftshift(fft(signal5)) );
+title("signal 5 fft")
+
+
+% xlabel("Seconds (s)")
+% ylabel("Amplitude")
+% title("Waveform of demodulated audio signal 1 over 20 seconds")
+% legend("audio signal 1")
+saveimagewrapper(gcf)
