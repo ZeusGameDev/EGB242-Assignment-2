@@ -10,7 +10,7 @@ load DataA2 audioMultiplexNoisy fs sid;
 
 % Begin writing your MATLAB solution below this line.
 
-length = size(audioMultiplexNoisy,2)/fs % 20 seconds
+length = size(audioMultiplexNoisy,2)/fs; % 20 seconds
 t = linspace(0,length,length*fs);
 
 figure(1)
@@ -73,42 +73,38 @@ fcApprox3 = 40190;
 fcApprox4 = 56250;
 fcApprox5 = 77280;
 
-searchMask = f > (fcApprox1-halfBandwidth) & f < (fcApprox1+halfBandwidth);
-[~,idx] = max(channelfft.* searchMask);
-carrier1 = f(idx);
-searchMask = f > fcApprox2-halfBandwidth & f < fcApprox2+halfBandwidth;
-[~,idx] = max(channelfft.* searchMask);
-carrier2 = f(idx);
-searchMask = f > fcApprox3-halfBandwidth & f < fcApprox3+halfBandwidth;
-[~,idx] = max(channelfft.* searchMask);
-carrier3 = f(idx);
-searchMask = f > fcApprox4-halfBandwidth & f < fcApprox4+halfBandwidth;
-[~,idx] = max(channelfft.* searchMask);
-carrier4 = f(idx);
-searchMask = f > fcApprox5-halfBandwidth & f < fcApprox5+halfBandwidth;
-[~,idx] = max(channelfft.* searchMask);
-carrier5 = f(idx);
+function [carrier] = findPeakFrequencyInBand(centre,bandwidth,f, channel)
+    halfBandwidth = bandwidth/2;
+    searchMask = f > (centre-halfBandwidth) & f < (centre+halfBandwidth);
+    [~,idx] = max(abs(fftshift(fft(channel))).* searchMask);
+    carrier = f(idx);
+end
+
+
+carrier1 = findPeakFrequencyInBand(fcApprox1, bandwidth, f, audioRemoveLSINoise)
+
+carrier2 = findPeakFrequencyInBand(fcApprox2, bandwidth, f, audioRemoveLSINoise)
+
+carrier3 = findPeakFrequencyInBand(fcApprox3, bandwidth, f, audioRemoveLSINoise)
+
+carrier4 = findPeakFrequencyInBand(fcApprox4, bandwidth, f, audioRemoveLSINoise)
+
+carrier5 = findPeakFrequencyInBand(fcApprox5, bandwidth, f, audioRemoveLSINoise)
 %demodulation
 [signal1, ~] = demodulate(audioRemoveLSINoise, carrier1,bandwidth,fs,t);
-% signal1 = signal1 -0.5*cos((1/20).*pi.*t);
-
 audiowrite("signal1.wav",signal1,fs)
 [signal2, ~] = demodulate(audioRemoveLSINoise, carrier2,bandwidth,fs,t);
-% signal2 = signal2 -0.5*cos((1/20).*pi.*t);
 audiowrite("signal2.wav",signal2,fs)
 [signal3, ~] = demodulate(audioRemoveLSINoise, carrier3,bandwidth,fs,t);
-% signal3 = signal3 -0.5*cos((1/20).*pi.*t);
 audiowrite("signal3.wav",signal3,fs)
 [signal4, ~] = demodulate(audioRemoveLSINoise, carrier4,bandwidth,fs,t);
-% signal4 = signal4 -0.5*cos((1/20).*pi.*t);
 audiowrite("signal4.wav",signal4,fs)
 [signal5, ~] = demodulate(audioRemoveLSINoise, carrier5,bandwidth,fs,t);
-% signal5 = signal5 -0.5*cos((1/20).*pi.*t);
 audiowrite("signal5.wav",signal5,fs)
 
-
+signal1_noise = 0.5*cos((1/18).*pi.*t);
 figure(5)
-plot(t, signal1,t,0.5*cos((1/18).*pi.*t) );
+plot(t, signal1,t, signal1_noise);
 xlabel("Seconds (s)")
 ylabel("Amplitude")
 title("Waveform of demodulated audio signal 1 over 20 seconds")
@@ -154,7 +150,7 @@ plot(t, signal5 );
 title("signal 5")
 
 subplot(3,2,6)
-plot(f, fftshift(fft(signal5)) );
+plot(f, abs(fftshift(fft(signal5))) );
 title("signal 5 fft")
 
 
