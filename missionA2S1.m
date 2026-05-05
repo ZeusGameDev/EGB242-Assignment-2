@@ -126,7 +126,7 @@ ax.YAxis.Exponent = 0;
 ax.XAxis.TickDirection = "both";
 saveimagewrapper(gcf)
 
-figure(5)
+figure(7)
 subplot(3,2,1)
 plot(t, signal1);
 title("signal 1")
@@ -159,3 +159,42 @@ title("signal 5 fft")
 % title("Waveform of demodulated audio signal 1 over 20 seconds")
 % legend("audio signal 1")
 saveimagewrapper(gcf)
+
+signal1 = highpass(signal1,50,fs);
+signal2 = highpass(signal2,50,fs);
+signal3 = highpass(signal3,50,fs);
+signal4 = highpass(signal4,50,fs);
+signal5 = highpass(signal5,50,fs);
+
+figure(8)
+subplot(3,2,1)
+plot(t, signal1);
+title("signal 1")
+% the noise looks vaguely (cos)sinusoidal, with a period of approx. 18s and
+% an amp of approx 0.5
+
+subplot(3,2,2)
+plot(t,signal2);
+title("signal 2")
+
+subplot(3,2,3)
+plot(t, signal3);
+title("signal 3")
+
+subplot(3,2,4)
+plot(t, signal4);
+title("signal 4")
+
+subplot(3,2,5)
+plot(t, signal5 );
+title("signal 5")
+
+subplot(3,2,6)
+plot(f, abs(fftshift(fft(signal5))) );
+title("signal 5 fft")
+
+audiowrite("signal1c.wav",signal1,fs)
+audiowrite("signal2c.wav",signal2,fs)
+audiowrite("signal3c.wav",signal3,fs)
+audiowrite("signal4c.wav",signal4,fs)
+audiowrite("signal5c.wav",signal5,fs)
