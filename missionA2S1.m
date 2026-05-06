@@ -7,7 +7,7 @@
 %% Initialise workspace
 clear all; close all;
 load DataA2 audioMultiplexNoisy fs sid;
-
+maxNumCompThreads(java.lang.Runtime.getRuntime().availableProcessors()); % threads set to n of logical processors
 % Begin writing your MATLAB solution below this line.
 
 length = size(audioMultiplexNoisy,2)/fs; % 20 seconds
@@ -159,12 +159,14 @@ title("signal 5 fft")
 % title("Waveform of demodulated audio signal 1 over 20 seconds")
 % legend("audio signal 1")
 saveimagewrapper(gcf)
-
-signal1 = highpass(signal1,50,fs);
-signal2 = highpass(signal2,50,fs);
-signal3 = highpass(signal3,50,fs);
-signal4 = highpass(signal4,50,fs);
-signal5 = highpass(signal5,50,fs);
+% TODO: filter in frequency domain
+signal1 = highpass(signal1,40,fs);
+signal2 = highpass(signal2,40,fs);
+signal3 = highpass(signal3,40,fs);
+signal4 = highpass(signal4,40,fs);
+signal5 = bandstop(signal5,[1040,1060],fs);
+signal5 = bandstop(signal5,[1040,1060],fs);
+signal5 = bandstop(signal5,[3215,3265],fs);
 
 figure(8)
 subplot(3,2,1)
@@ -198,3 +200,5 @@ audiowrite("signal2c.wav",signal2,fs)
 audiowrite("signal3c.wav",signal3,fs)
 audiowrite("signal4c.wav",signal4,fs)
 audiowrite("signal5c.wav",signal5,fs)
+
+% TODO: label all graphs
