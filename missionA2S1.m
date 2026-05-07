@@ -50,6 +50,7 @@ figure(4)
 plot(f,abs(fftshift(H)), f, channelfft)
 % y(t) = x(t) conv h(t)
 % y(f) = x(f) mult h(f)
+% tute 6?
 audioRemoveLSINoise = (ifft(((fft(audioMultiplexNoisy)) ./ H)))*fs;
 figure(67)
 plot(t,audioRemoveLSINoise);
@@ -80,7 +81,7 @@ function [carrier] = findPeakFrequencyInBand(centre,bandwidth,f, channel)
     carrier = f(idx);
 end
 
-
+% TODO: do i need fftshift
 carrier1 = findPeakFrequencyInBand(fcApprox1, bandwidth, f, audioRemoveLSINoise)
 
 carrier2 = findPeakFrequencyInBand(fcApprox2, bandwidth, f, audioRemoveLSINoise)
@@ -160,13 +161,17 @@ title("signal 5 fft")
 % legend("audio signal 1")
 saveimagewrapper(gcf)
 % TODO: filter in frequency domain
-signal1 = highpass(signal1,40,fs);
-signal2 = highpass(signal2,40,fs);
-signal3 = highpass(signal3,40,fs);
-signal4 = highpass(signal4,40,fs);
-signal5 = bandstop(signal5,[1040,1060],fs);
-signal5 = bandstop(signal5,[1040,1060],fs);
-signal5 = bandstop(signal5,[3215,3265],fs);
+% signal1 = highpass(signal1,40,fs);
+
+% signal2 = highpass(signal2,40,fs);
+% signal3 = highpass(signal3,40,fs);
+% signal4 = highpass(signal4,40,fs);
+% signal5 = bandstop(signal5,[1040,1060],fs);
+% signal5 = bandstop(signal5,[1040,1060],fs);
+% signal5 = bandstop(signal5,[3215,3265],fs);
+
+f2 = linspace(0,fs,fs*length);
+signal1 = real(ifft(fft(signal1).*(f2>50)));
 
 figure(8)
 subplot(3,2,1)
