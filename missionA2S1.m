@@ -7,11 +7,16 @@
 %% Initialise workspace
 clear all; close all;
 load DataA2 audioMultiplexNoisy fs sid;
-maxNumCompThreads(java.lang.Runtime.getRuntime().availableProcessors()); % threads set to n of logical processors
 % Begin writing your MATLAB solution below this line.
+global saveImages;
+saveImages = 1;
+
+maxNumCompThreads(java.lang.Runtime.getRuntime().availableProcessors()); % threads set to n of logical processors
 
 length = size(audioMultiplexNoisy,2)/fs; % 20 seconds
-t = linspace(0,length,length*fs);
+samples = fs*length;
+t = linspace(0, length, samples + 1); t(end) = [];
+
 
 figure(1)
 plot(t, audioMultiplexNoisy);
@@ -36,13 +41,14 @@ ax.YAxis.Exponent = 0;
 ax.XAxis.TickDirection = "both";
 saveimagewrapper(gcf)
 
+return
 ts = 1/fs; % sampling period/time??
 % signal of area 1 , and infinite peak. ts is smallest unit of time,
 % Area = ts*(1/ts) = 1
 dirac = [1/ts,zeros(1,size(t,2)-1)];
 impulseResponse = channel(sid, dirac, fs);
 H = fft(impulseResponse);
-f= linspace(-fs/2,fs/2,fs*length);
+f = linspace(-fs/2, fs/2, samples + 1); f(end) = [];
 figure(3)
 plot(t,impulseResponse)
 
@@ -51,9 +57,9 @@ plot(f,abs(fftshift(H)), f, channelfft)
 % y(t) = x(t) conv h(t)
 % y(f) = x(f) mult h(f)
 % tute 6?
-audioRemoveLSINoise = (ifft(((fft(audioMultiplexNoisy)) ./ H)))*fs;
+audioRemoveLSINoise = real(ifft(((fft(audioMultiplexNoisy)) ./ H)))*fs;
 figure(67)
-plot(t,audioRemoveLSINoise);
+plot(f,abs(fftshift(H)),f ,abs(fftshift(fft(audioRemoveLSINoise))));
 
 function [audioSignal, demodulatedSignal] = demodulate(signal, carrierFrequency, bandwidth,fs,t)
     carrier = cos(2*pi*carrierFrequency.*t);
@@ -77,6 +83,8 @@ fcApprox5 = 77280;
 function [carrier] = findPeakFrequencyInBand(centre,bandwidth,f, channel)
     halfBandwidth = bandwidth/2;
     searchMask = f > (centre-halfBandwidth) & f < (centre+halfBandwidth);
+    % [~,idx] = maxk(abs(fftshift(fft(channel))).* searchMask,2);
+    % carrier = (f(idx(1))+f(idx(2)))/2;
     [~,idx] = max(abs(fftshift(fft(channel))).* searchMask);
     carrier = f(idx);
 end
@@ -112,7 +120,7 @@ title("Waveform of demodulated audio signal 1 over 20 seconds")
 legend("audio signal 1")
 saveimagewrapper(gcf)
 
-f= linspace(-fs/2,fs/2,fs*length);
+% f= linspace(-fs/2,fs/2,fs*length);
 s1fft = abs(fftshift(fft(signal1)))*ts;
 
 figure(6)
@@ -131,8 +139,7 @@ figure(7)
 subplot(3,2,1)
 plot(t, signal1);
 title("signal 1")
-% the noise looks vaguely (cos)sinusoidal, with a period of approx. 18s and
-% an amp of approx 0.5
+
 
 subplot(3,2,2)
 plot(t,signal2);
@@ -161,7 +168,19 @@ title("signal 5 fft")
 % legend("audio signal 1")
 saveimagewrapper(gcf)
 % TODO: filter in frequency domain
-% signal1 = highpass(signal1,40,fs);
+signal1 = highpass(signal1,40,fs);
+signal1 = lowpass(signal1,4000,fs);
+% signal2 = highpass(signal2,40,fs);
+% signal2 = lowpass(signal2,4000,fs);
+% signal3 = highpass(signal3,40,fs);
+% signal3 = lowpass(signal3,4000,fs);
+% signal4 = highpass(signal4,40,fs);
+% signal4 = lowpass(signal4,4000,fs);
+% signal1 = bandstop(signal1,[2340,2370],fs);
+signal5 = signal5*10;
+figure(10)
+plot(f, abs(fftshift(fft(signal1))) );
+title("signal 1")
 
 % signal2 = highpass(signal2,40,fs);
 % signal3 = highpass(signal3,40,fs);
@@ -169,9 +188,19 @@ saveimagewrapper(gcf)
 % signal5 = bandstop(signal5,[1040,1060],fs);
 % signal5 = bandstop(signal5,[1040,1060],fs);
 % signal5 = bandstop(signal5,[3215,3265],fs);
+% searchMask = f > (centre-halfBandwidth) & f < (centre+halfBandwidth);
+% [~,idx] = max(abs(fftshift(fft(channel))).* searchMask);
+% f2 = linspace(0,fs,fs*length);
+% 2340,2370
+% signal1 = real(ifft(fft(signal1).*( (f2>20) & (f2<4000) )));
+% signal1 = real(ifft(fft(signal1).*~( (f2>2340) & (f2<2370) )));
+% signal1 = (ifft(fft(signal1)))*fs;
 
-f2 = linspace(0,fs,fs*length);
-signal1 = real(ifft(fft(signal1).*(f2>50)));
+% % signal1 = (ifft(fft(signal1).*( (f>20) & (f<8000) )));
+% signal2 = real(ifft(fft(signal1).*(f>20 & f<8000)));
+% signal3 = real(ifft(fft(signal1).*(f>20 & f<8000)));
+% signal4 = real(ifft(fft(signal1).*(f>20 & f<8000)));
+
 
 figure(8)
 subplot(3,2,1)

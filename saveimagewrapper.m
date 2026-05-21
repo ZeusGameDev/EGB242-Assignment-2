@@ -11,8 +11,9 @@
 % saveaswrapper(gcf) % gcf is a variable that always contains the current figure
 % gcf -> get current figure
 function saveimagewrapper(handle)
+    prefix = dbstack("-completenames",1).name;
     global saveImages;
     if saveImages==1
-        saveas(handle,sprintf("images\\fig%d.svg",handle().Number),"svg");
+        saveas(handle,sprintf("images\\%s_fig%d.svg",prefix,handle().Number),"svg");
     end
 end
