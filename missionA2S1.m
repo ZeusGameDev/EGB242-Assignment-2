@@ -24,6 +24,7 @@ xlabel("Seconds (s)")
 ylabel("Amplitude")
 title("Waveform of transmission channel over 20 seconds")
 legend("audio")
+fontsize(gcf,scale=1.6)
 saveimagewrapper(gcf)
 
 f= linspace(-fs/2,fs/2,fs*length);
@@ -39,6 +40,7 @@ ax = gca;
 ax.XAxis.Exponent = 0;
 ax.YAxis.Exponent = 0;
 ax.XAxis.TickDirection = "both";
+fontsize(gcf,scale=1.6)
 saveimagewrapper(gcf)
 
 return

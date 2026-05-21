@@ -11,9 +11,11 @@
 % saveaswrapper(gcf) % gcf is a variable that always contains the current figure
 % gcf -> get current figure
 function saveimagewrapper(handle)
-    prefix = dbstack("-completenames",1).name;
+    prefix = dbstack("-completenames",1).name; % get file function called from
+    ax = gca;
+    ax.FontName = "helvetica"; % fixes exponents appearing as hashes in exported svg
     global saveImages;
     if saveImages==1
-        saveas(handle,sprintf("images\\%s_fig%d.svg",prefix,handle().Number),"svg");
+        exportgraphics(handle,sprintf("images\\%s_fig%d.svg",prefix,handle().Number),"ContentType","vector");
     end
 end
