@@ -51,7 +51,6 @@ legend("Step Response", "Step Input")
 Fs = tf( 1, [1, 0.5, 1]);
 %timePotPsiOut = ilaplace(potPsiOut);
 %errors, needs to convert to double
-figure(2)
 %errors telling me to apply "subs: function first
 %potTimeFinal = double(subs(timePotPsiOut, t, linspace(0, 25, 10000)));
 
@@ -65,8 +64,86 @@ lsim(Fs, stepInput, t);
 % the system to go between 0rad and 2pi radians. 
 % 
 % 
-% 
+% 2.5
+%
+%
 
 
+%newTransfer = (Gg) / (s*(s+0.5) * Hg * Gg);
 
+%testing Kfd changing and Kfwd = 1;
+testValues = [0.1, 0.2, 0.5, 1, 2];
+figure(3);
+for i = testValues
+    %doesnt like me having these outside the for loop
+    Kfwd = 1;
+    Kfd = i;
+    newTransfer = tf(Kfwd, [1, 0.5, Kfwd*Kfd]);
+    lsim(newTransfer, stepInput, t);
+    hold on;
+end
+legend("0.1", "0.2", "0.5", "1", "2")
+title("the effect of Kfb on the step response")
 
+% Kfd changed where the settling value is. at 0.1 it settles at around 10
+% rads, with it decreasing down to 0.5 radians at a value of 2.
+hold off;
+figure(4);
+for i = testValues
+    %doesnt like me having these outside the for loop
+    Kfwd = i;
+    Kfd = 1;
+    newTransfer = tf(Kfwd, [1, 0.5, Kfwd*Kfd]);
+    lsim(newTransfer, stepInput, t);
+    hold on;
+end
+legend("0.1", "0.2", "0.5", "1", "2")
+title("the effect of Kfwd on the step response")
+hold off;
+
+%Kfwd appears to alter the response time, with the system reacting to the
+%step input faster, but also increasing the %overshoot
+
+%2.6
+
+%Tp = 15
+%between 0 and 2pi
+% 0.1 * input = 10
+% input = 100
+% 100 * kfd = 2pi
+% kfd = 100/2pi
+% kfd = 50/pi
+
+wn = 0.3261363341;
+zeta = 0.766550592;
+
+newKfd = 1/(2*pi);
+newKfwd = (wn^2) / newKfd;
+cameraTF = tf(newKfwd, [1, 0.5, newKfwd*newKfd]);
+figure(5);
+lsim(cameraTF, stepInput, t);
+
+%stepinfo(cameraTF)
+
+%
+% 2.7
+%
+
+%panorama
+%from 30 degrees to 210 degrees
+
+% 30 * pi/180
+% = pi/6
+% /2pi to get voltage
+%   1/12V
+
+% 210 * pi/180
+% = 7pi / 6
+% /2pi to get voltage
+% = 7/12
+
+[startIm, finalIm] = cameraPan((1/12), (7/12), cameraTF);
+
+% It took around 23 seconds to pan from the initial angle to the final
+% angle. It overshot the final angle by 3-4 degrees before panning back. 
+% time to 
