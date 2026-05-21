@@ -8,8 +8,8 @@
 clear all; close all;
 load DataA2 audioMultiplexNoisy fs sid;
 % Begin writing your MATLAB solution below this line.
-global saveImages;
-saveImages = 1;
+% global saveImages;
+% saveImages = 1;
 
 maxNumCompThreads(java.lang.Runtime.getRuntime().availableProcessors()); % threads set to n of logical processors
 
@@ -43,7 +43,6 @@ ax.XAxis.TickDirection = "both";
 fontsize(gcf,scale=1.6)
 saveimagewrapper(gcf)
 
-return
 ts = 1/fs; % sampling period/time??
 % signal of area 1 , and infinite peak. ts is smallest unit of time,
 % Area = ts*(1/ts) = 1
@@ -113,9 +112,8 @@ audiowrite("signal4.wav",signal4,fs)
 [signal5, ~] = demodulate(audioRemoveLSINoise, carrier5,bandwidth,fs,t);
 audiowrite("signal5.wav",signal5,fs)
 
-signal1_noise = 0.5*cos((1/18).*pi.*t);
 figure(5)
-plot(t, signal1,t, signal1_noise);
+plot(t, signal1);
 xlabel("Seconds (s)")
 ylabel("Amplitude")
 title("Waveform of demodulated audio signal 1 over 20 seconds")
@@ -162,13 +160,13 @@ title("signal 5")
 subplot(3,2,6)
 plot(f, abs(fftshift(fft(signal5))) );
 title("signal 5 fft")
+saveimagewrapper(gcf)
 
 
 % xlabel("Seconds (s)")
 % ylabel("Amplitude")
 % title("Waveform of demodulated audio signal 1 over 20 seconds")
 % legend("audio signal 1")
-saveimagewrapper(gcf)
 % TODO: filter in frequency domain
 signal1 = highpass(signal1,40,fs);
 signal1 = lowpass(signal1,4000,fs);
