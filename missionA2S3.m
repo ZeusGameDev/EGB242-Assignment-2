@@ -1,4 +1,4 @@
-%%%% EGB242 Assignment 2, Section 3 %%
+%% %% EGB242 Assignment 2, Section 3 %%
 % This file is a template for your MATLAB solution to Section 3.
 %
 % Before starting to write code, generate your data with the ??? as
@@ -10,15 +10,17 @@ load DataA2 imagesReceived;
 
 % Begin writing your MATLAB solution below this line.
 
-% 3.1
+%% 3.1
 im1D = imagesReceived(1, :);
 
 im2D = reshape(im1D, 480, 640);
 
+imwrite(im2D,'Location_1_Noisy.png');
+
 figure;
 imshow(im2D);
 
-% 3.2
+%% 3.2
 t = linspace(0, length(im1D) / 1000, length(im1D));
 
 f_vec = linspace(-500,500,length(im1D));
@@ -28,13 +30,14 @@ figure;
 subplot(1, 2, 1);
 plot(t, im1D);
 xlim([0, t(end)]);
+ylim([-10, 10])
 title("Time domain representation of image signal");
 xlabel("Seconds (s)")
 ylabel("Amplitude")
 
 subplot(1, 2, 2);
 plot(f_vec, f);
-ylim([0, 50000])
+ylim([0, 20000])
 title("Frequency domain representation of image signal");
 xlabel("Frequency (Hz)")
 ylabel("Magnitude")
@@ -45,7 +48,7 @@ ylabel("Magnitude")
 % magnitude of frequencies after approximately 200 Hz when it si expected
 % that they continue to tail off.
 
-% 3.3
+%% 3.3
 
 % Looking for a low pass filter with a pass band on 200 Hz
 
@@ -95,7 +98,7 @@ ylabel("Magnitude")
 
 % Passive filter 2 seems best
 
-% 3.4
+%% 3.4
 
 image_filtered_f = f .* passive_filter2;
 
@@ -103,71 +106,66 @@ image_filtered_t = ifft(ifftshift(image_filtered_f));
 
 image_filtered = reshape(image_filtered_t, 480, 640);
 
-figure;
-subplot(2, 2, 1);
-plot(f_vec, image_filtered_f);
-ylim([0, 50000])
-title("Frequency domain representation of filtered image signal");
-xlabel("Frequency (Hz)")
-ylabel("Magnitude")
+imwrite(image_filtered,'Location_1_Clean.png');
 
-subplot(2, 2, 2);
+figure;
+subplot(1, 2, 1);
 plot(t, image_filtered_t);
-ylim([-10, 10])
+xlim([0, t(end)]);
+ylim([-4, 4])
 title("Time domain representation of filtered image signal");
 xlabel("Seconds (s)")
 ylabel("Amplitude")
 
-subplot(2, 2, 3);
-imshow(im2D);
-title("Original noisy image for reference");
-
-subplot(2, 2, 4);
-imshow(image_filtered);
-title("Filtered image")
+subplot(1, 2, 2);
+plot(f_vec, image_filtered_f);
+ylim([0, 20000])
+title("Frequency domain representation of filtered image signal");
+xlabel("Frequency (Hz)")
+ylabel("Magnitude")
 
 % Final image is much clearer, most noise is remove but still slightly
 % visable. 
 
-% 3.5
+%% 3.5
+
+function img_filtered_2D = filter_image(image_noisy_1D, filter)
+    % Transform to frequency domain
+    image_f = fftshift(fft(image_noisy_1D));
+    % Filter
+    image_filtered_f = image_f .* filter;
+    % Transform back to time domain
+    image_filtered = ifft(ifftshift(image_filtered_f));
+    % Reshape to display image
+    img_filtered_2D = reshape(image_filtered, 480, 640);
+end
 
 % Load Images
 image2_noisy = imagesReceived(2, :);
 image3_noisy = imagesReceived(3, :);
 image4_noisy = imagesReceived(4, :);
 
-% Transform to frequency domain
-image2_f = fftshift(fft(image2_noisy));
-image3_f = fftshift(fft(image3_noisy));
-image4_f = fftshift(fft(image4_noisy));
-
-% Filter
-image2_filtered_f = image2_f .* passive_filter2;
-image3_filtered_f = image3_f .* passive_filter2;
-image4_filtered_f = image4_f .* passive_filter2;
-
-% Transform back to time domain
-image2_filtered = ifft(ifftshift(image2_filtered_f));
-image3_filtered = ifft(ifftshift(image3_filtered_f));
-image4_filtered = ifft(ifftshift(image4_filtered_f));
-
-% Reshape to display image
-image2 = reshape(image2_filtered, 480, 640);
-image3 = reshape(image3_filtered, 480, 640);
-image4 = reshape(image4_filtered, 480, 640);
+% use funtion to filter image
+image2 = filter_image(image2_noisy, passive_filter2);
+image3 = filter_image(image3_noisy, passive_filter2);
+image4 = filter_image(image4_noisy, passive_filter2);
 
 figure;
 subplot(2, 2, 1);
 imshow(image_filtered);
+title("Image 1");
 
 subplot(2, 2, 2);
 imshow(image2);
+title("Image 2");
 
 subplot(2, 2, 3);
 imshow(image3);
+title("Image 3");
 
 subplot(2, 2, 4);
 imshow(image4);
+title("Image 4");
 
 % Image 3 has the best landing spot, despite being pretty rocky it is the
 % only wide open flat area of the given images
