@@ -14,8 +14,7 @@ clear all; close all;
 
 %25 seconds, 10000 samples
 t = linspace(0, 25, 10000);
-
-% idk how to put u(t) in so ill do without for now
+% dont need u(t)
 psiOut = 4*exp(-0.5*t) + 2*t - 4;
 
 % step input
@@ -55,6 +54,8 @@ Fs = tf( 1, [1, 0.5, 1]);
 %potTimeFinal = double(subs(timePotPsiOut, t, linspace(0, 25, 10000)));
 
 figure(2)
+title("Control System With Potentiometer against time")
+ylabel("Yaw (radians)")
 lsim(Fs, stepInput, t); 
 
 %
@@ -108,11 +109,6 @@ hold off;
 
 %Tp = 15
 %between 0 and 2pi
-% 0.1 * input = 10
-% input = 100
-% 100 * kfd = 2pi
-% kfd = 100/2pi
-% kfd = 50/pi
 
 wn = 0.3261363341;
 zeta = 0.766550592;
@@ -143,6 +139,7 @@ lsim(cameraTF, stepInput, t);
 % = 7/12
 
 [startIm, finalIm] = cameraPan((1/12), (7/12), cameraTF);
+
 
 % It took around 23 seconds to pan from the initial angle to the final
 % angle. It overshot the final angle by 3-4 degrees before panning back. 
