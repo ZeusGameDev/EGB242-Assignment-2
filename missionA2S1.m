@@ -419,3 +419,4 @@ audiowrite("signal4noLTInoTone.wav",signal4,fs)
 audiowrite("signal5noLTInoTone.wav",signal5,fs)
 
 % TODO: label all graphs
+% TODO: export all images as svg?
