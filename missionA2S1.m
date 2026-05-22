@@ -11,8 +11,6 @@ load DataA2 audioMultiplexNoisy fs sid;
 global saveImages;
 saveImages = 1;
 
-maxNumCompThreads(java.lang.Runtime.getRuntime().availableProcessors()); % threads set to n of logical processors
-
 length = size(audioMultiplexNoisy,2)/fs; % 20 seconds
 samples = fs*length;
 t = linspace(0, length, samples + 1); t(end) = [];
@@ -94,29 +92,6 @@ audiowrite("signal3.wav",signal3,fs)
 audiowrite("signal4.wav",signal4,fs)
 [signal5, ~] = demodulate(audioMultiplexNoisy, carrier5,bandwidth,fs,t);
 audiowrite("signal5.wav",signal5,fs)
-
-% figure(5)
-% plot(t, signal1);
-% xlabel("Seconds (s)")
-% ylabel("Amplitude")
-% title("Waveform of demodulated audio signal 1 over 20 seconds")
-% legend("audio signal 1")
-% saveimagewrapper(gcf)
-% 
-% % f= linspace(-fs/2,fs/2,fs*length);
-% s1fft = abs(fftshift(fft(signal1)))*ts;
-% 
-% figure(6)
-% plot(f,s1fft)
-% xlabel("Frequency (Hz)")
-% ylabel("Magnitude")
-% legend("signal 1")
-% title("Frequencies present in demodulated signal 1")
-% ax = gca;
-% ax.XAxis.Exponent = 0;
-% ax.YAxis.Exponent = 0;
-% ax.XAxis.TickDirection = "both";
-% saveimagewrapper(gcf)
 
 figure(7)
 subplot(5,2,1)
