@@ -8,9 +8,19 @@
 clear all; close all;
 load DataA2 audioMultiplexNoisy fs sid;
 % Begin writing your MATLAB solution below this line.
-global saveImages;
-saveImages = 1;
+% global saveImages;
+% saveImages = 1;
 
+% this was orignally in it's own.m file
+function saveimagewrapper(handle)
+    prefix = dbstack("-completenames",1).name; % get file function called from
+    ax = gca;
+    ax.FontName = "helvetica"; % fixes exponents appearing as hashes in exported svg
+    global saveImages;
+    if saveImages==1
+        exportgraphics(handle,sprintf("images\\%s_fig%d.svg",prefix,handle().Number),"ContentType","vector");
+    end
+end
 length = size(audioMultiplexNoisy,2)/fs; % 20 seconds
 samples = fs*length;
 t = linspace(0, length, samples + 1); t(end) = [];
@@ -50,7 +60,7 @@ function [audioSignal, demodulatedSignal] = demodulate(signal, carrierFrequency,
     bpFiltered = bandpass(signal, passBand, fs);
     demodulatedSignal = bpFiltered.*carrier;
     demodfft = fft(demodulatedSignal); 
-    demodfft(1) = 0; % remove dc offset (recentre signal around 0)
+    demodfft(1) = 0; % remove dc offset (recentre signal around ampltiude 0)
     audioSignal = lowpass(real(ifft(demodfft)),halfBandwidth, fs);
 end
 
@@ -66,7 +76,7 @@ fcApprox5 = 72280;
 
 function [peak] = findPeakFrequencyInBand(centre,bandwidth,f, channel)
     halfBandwidth = bandwidth/2;
-    searchMask = f > (centre-halfBandwidth) & f < (centre+halfBandwidth)
+    searchMask = f > (centre-halfBandwidth) & f < (centre+halfBandwidth);
     [~,idx] = max(abs(fftshift(fft(channel))).* searchMask);
     peak = f(idx);
 end
@@ -180,14 +190,14 @@ fontsize(gcf,scale=1.6)
 saveimagewrapper(gcf)
 
 figure(5)
-plot(f,sign(fftshift(H)).*abs(fftshift(H))./50,f ,sign(fftshift(fft(audioMultiplexNoisy))).*abs(fftshift(fft(audioMultiplexNoisy))));
+plot(f,abs(fftshift(H))./60,f ,abs(fftshift(fft(audioMultiplexNoisy))));
 % plot(f,abs(fftshift(H)),f ,abs(fftshift(fft(audioMultiplexNoisy))));
 xlabel("Frequency (Hz)")
 ylabel("Magnitude")
 legend("frequency response of channel","audioMultiplexNoisy")
-title("frequency response of channel around carrier1 (8330 Hz) and magnitude-frequency response of audioMultiplexNois  ")
-ylim([-1*power(10,4) 1*power(10,4)])
-xlim([carrier1-bandwidth*0.5 carrier1+bandwidth*0.5])
+title("Frequency response of channel and magnitude-frequency response of audioMultiplexNoise around carrier1 (8330 Hz).")
+ylim([-inf 1*power(10,4)])
+xlim([carrier1-bandwidth*0.01 carrier1+bandwidth*0.01])
 
 saveimagewrapper(gcf)
 
